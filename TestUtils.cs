@@ -32,7 +32,9 @@ public static class TestUtils {
 
 	private static void AddProvided(object test, ServiceCollection serviceCollection) {
 		ProvidedList(test).ForEach(p => {
-			serviceCollection.AddSingleton(p.FieldType);
+			var attribute = p.GetCustomAttribute<ProvidedAttribute>();
+			var interfaceType = attribute?.As ?? p.FieldType;
+			serviceCollection.AddSingleton(interfaceType, p.FieldType);
 		});
 	}
 
@@ -62,7 +64,9 @@ public static class TestUtils {
 
 	private static void SetProvided(object test, ServiceProvider serviceProvider) {
 		ProvidedList(test).ForEach(p => {
-			var instance = serviceProvider.GetRequiredService(p.FieldType);
+			var attribute = p.GetCustomAttribute<ProvidedAttribute>();
+			var interfaceType = attribute?.As ?? p.FieldType;
+			var instance = serviceProvider.GetRequiredService(interfaceType);
 			p.SetValue(test, instance);
 		});
 	}
